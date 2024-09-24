@@ -1,11 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  labels:
-    pipelines.openshift.io/runtime: fbc
-    pipelines.openshift.io/strategy: fbc
-    pipelines.openshift.io/used-by: build-cloud
-  name: dynamic-operator-catalog-build
+  name: catalog-builder
 spec:
   description: |
     This pipeline is used to generated an OLM catalog based on the provided
