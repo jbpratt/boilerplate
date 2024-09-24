@@ -16,7 +16,7 @@ metadata:
     appstudio.openshift.io/component: catalog-builder
     pipelines.appstudio.openshift.io/type: build
   name: catalog-builder-on-pull-request
-  namespace: boilerplate-cicada-tenant
+  namespace: rhn-support-bpratt-tenant
 spec:
   params:
   - name: git-url
@@ -24,7 +24,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/boilerplate-cicada-tenant/hcm-operator-pipelines/catalog-builder:on-pr-{{revision}}
+    value: quay.io/redhat-user-workloads/rhn-support-bpratt-tenant/hcm-operator-pipelines/catalog-builder:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
   - name: dockerfile
