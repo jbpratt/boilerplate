@@ -1,10 +1,8 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: bundle-builder
+  name: olm-bundle-builder
 spec:
-  description: |
-    ...
   finally:
   - name: show-sbom
     params:
@@ -94,6 +92,26 @@ spec:
     description: Minor version of the operator
     name: minor-version
     type: string
+  - default: "stable"
+    description: OLM channel of the operator
+    name: channel
+    type: string
+  - default: ""
+    description: OLM package name
+    name: package-name
+    type: string
+  - default: "config/manifests"
+    description: Directory containing kustomize bases in a "bases" dir and a kustomization.yaml for operator-framework manifests
+    name: kustomize-dir
+    type: string
+  - default: ""
+    description: Names of service accounts, outside of the operator's Deployment account, that have bindings to {Cluster}Roles that should be added to the CSV
+    name: extra-service-accounts
+    type: string
+  - default: ""
+    description: A file containing additonal Dockerfile labels to append to the bundle Dockerfile
+    name: additional-labels-file
+    type: string
   results:
   - description: ""
     name: IMAGE_URL
@@ -155,17 +173,17 @@ spec:
   - name: operator-sdk-generate-bundle
     params:
     - name: channels
-      value: stable
+      value: $(params.channel)
     - name: package-name
-      value: osd-example-operator
+      value: $(params.package-name)
     - name: version
       value: $(params.major-version).$(params.minor-version).$(tasks.clone-repository.results.commit-timestamp)-$(tasks.clone-repository.results.short-commit)
     - name: kustomize-dir
-      value: config/manifests
+      value: $(params.kustomize-dir)
     - name: extra-service-accounts
-      value: osd-example-admin
+      value: $(params.extra-service-accounts)
     - name: additional-labels-file
-      value: config/metadata/additional-labels.txt
+      value: $(params.additional-labels-file)
     runAfter:
     - clone-repository
     taskRef:

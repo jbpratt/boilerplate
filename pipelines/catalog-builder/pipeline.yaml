@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: catalog-builder
+  name: olm-catalog-builder
 spec:
   description: |
     This pipeline is used to generated an OLM catalog based on the provided
@@ -180,7 +180,7 @@ spec:
     - name: bundle-images
       value: $(params.operator-bundle-image)
     - name: operator-name
-      value: osd-example-operator
+      value: $(params.operator-name)
     - name: operator-version
       value: v$(tasks.opm-get-bundle-version.results.bundle-version)
     taskRef:
