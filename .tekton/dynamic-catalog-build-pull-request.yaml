@@ -27,10 +27,8 @@ spec:
     value: quay.io/redhat-user-workloads/rhn-support-bpratt-tenant/pipelines/dynamic-catalog-build:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
-  - name: dockerfile
-    value: Dockerfile
   - name: path-context
-    value: pipelines
+    value: source/pipelines/
   pipelineSpec:
     finally:
     - name: show-summary

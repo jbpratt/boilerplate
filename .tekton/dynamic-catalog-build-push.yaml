@@ -23,10 +23,8 @@ spec:
     value: '{{revision}}'
   - name: output-image
     value: quay.io/redhat-user-workloads/rhn-support-bpratt-tenant/pipelines/dynamic-catalog-build:{{revision}}
-  - name: dockerfile
-    value: Dockerfile
   - name: path-context
-    value: pipelines
+    value: source/pipelines/
   pipelineSpec:
     finally:
     - name: show-summary
