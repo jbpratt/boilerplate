@@ -409,7 +409,7 @@ upstream.
 The backing image is built in prow with every commit, even when nothing about it has changed.
 To make this faster, we periodically ratchet the base image (the `FROM` in the [Dockerfile](config/Dockerfile))
 to point to the previously-released image, and clear out the [build script](config/build.sh) to start from that point.
-However, in app-sre we build from scratch (exactly once per `image-v*` tag!).
+However, in Konflux we build from scratch (exactly once per `image-v*` tag!).
 
 When the underlying base image changes significantly, the `FROM` directive in [config/Dockerfile](config/Dockerfile)
 may be temporarily changed to the new upstream image. However, as soon as it is stable, a new commit should be made
@@ -421,7 +421,7 @@ it's not available in boilerplate:image-v2.Y.Z
 
 1. Update config/Dockerfile
     ```
-    FROM registry.ci.openshift.org/openshift/release:rhel-8-release-golang-1.22-openshift-4.17
+    FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_8_1.22
     ```
 2. Then, update the rest of boilerplate accordingly, push a new tag, and mirror the image into openshift/release
 to create boilerplate:image-v3.0.0
@@ -435,3 +435,30 @@ We only build and publish a new build image on commits tagged with `image-v*`, w
 If the base image (`golang-*`) is updated for any reason, including security fixes, the boilerplate build image will only pick up those changes the next time we produce a new version.
 To pick up such changes right away, simply produce a new version (identical to the previous in terms of what boilerplate configures) according to the instructions [above](#build-images).
 Of course, consumers will need to update to/past the tagged commit in order to use the new image.
+
+#### Creating a Konflux release
+Konflux auto-releasing is disbaled to require manual releasing of each git tag
+specifically. Once a new git tag is pushed, find the resulting snapshot that
+contains the newly built artifact:
+
+```
+oc get snapshots --sort-by=.metadata.creationTimestamp
+```
+
+The `ReleasePlanAdmission` resource in `konflux-release-data` should be updated
+with the new image tag. A `Release` CR can then be created based on the
+snapshot and existing `ReleasePlan` which will trigger a managed release
+pipeline, publishing the new image:
+
+```yaml
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+ name: v<git tag version>
+spec:
+ releasePlan: boilerplate-releaseplan
+ snapshot: <snapshot name>
+```
+
+**NOTE**: Once a new release is created, ensure to update the `ImageStream`
+references in `openshift/release`.
